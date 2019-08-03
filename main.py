@@ -3,11 +3,13 @@
 
 import pygame as pg
 import sys
+from os import path, environ
 from settings import *
 from sprites import *
 
 class Game:
     def __init__(self):
+        environ['SDL_VIDEO_CENTERED'] = '1'
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
@@ -16,15 +18,26 @@ class Game:
         self.load_data()
 
     def load_data(self):
-        pass
+        game_folder = path.dirname(__file__)
+        self.map_data = []
+        with open(path.join(game_folder, 'map02.txt'), 'rt') as f:
+            for line in f:
+                self.map_data.append(line)
+
+
 
     def new(self):
         # initialize variables and do setup for new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 10, 10)    #Spawn at GRID coordinates, not pixel
-        for x in range(10,20):
-            Wall(self,x,5)
+        #Loop through map_data list
+        for row, tiles in enumerate(self.map_data):
+            for col, tile in enumerate(tiles):
+                if tile == '1':
+                    Wall(self, col, row)
+                if tile == 'P':
+                    self.player = Player(self, col, row)
+
 
     def run(self):
         # game loop - set self.playing = False to end the game
